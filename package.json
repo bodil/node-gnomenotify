@@ -1,0 +1,9 @@
+{ "name" : "gnomenotify"
+, "version" : "0.0.1"
+, "description" : "libnotify C++ bindings for Node"
+, "author": "Bodil Stokke <bodil@bodil.tv>"
+, "keywords": [ "libnotify" ]
+, "main": "./build/default/libnotify"
+, "scripts": { "install": "node-waf configure build" }
+}
+

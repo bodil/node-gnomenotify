@@ -8,11 +8,12 @@ def set_options(opt):
 def configure(conf):
   conf.check_tool('compiler_cxx')
   conf.check_tool('node_addon')
+  conf.check_cfg(package='libnotify', args='--cflags --libs')
 
 def build(bld):
   obj = bld.new_task_gen('cxx', 'shlib', 'node_addon')
   obj.target = 'libnotify'
   obj.source = 'libnotify.cc'
-  obj.uselib = 'notify'
+  obj.uselib = 'LIBNOTIFY'
 
 
