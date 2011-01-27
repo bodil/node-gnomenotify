@@ -4,6 +4,7 @@
 #include <libnotify/notify.h>
 #include <string>
 #include <iostream>
+#include <string.h>
 
 using namespace v8;
 using namespace node;
@@ -12,6 +13,10 @@ static Persistent<String> show_symbol;
 static Persistent<String> update_symbol;
 static Persistent<String> close_symbol;
 static Persistent<String> set_hint_symbol;
+static Persistent<String> clear_hints_symbol;
+static Persistent<String> set_timeout_symbol;
+static Persistent<String> set_category_symbol;
+static Persistent<String> set_urgency_symbol;
 
 class Notification : public EventEmitter {
     public:
@@ -25,10 +30,18 @@ class Notification : public EventEmitter {
             update_symbol = NODE_PSYMBOL("update");
             close_symbol = NODE_PSYMBOL("close");
             set_hint_symbol = NODE_PSYMBOL("set_hint");
+            clear_hints_symbol = NODE_PSYMBOL("clear_hints");
+            set_timeout_symbol = NODE_PSYMBOL("set_timeout");
+            set_category_symbol = NODE_PSYMBOL("set_category");
+            set_urgency_symbol = NODE_PSYMBOL("set_urgency");
             NODE_SET_PROTOTYPE_METHOD(t, "show", Show);
             NODE_SET_PROTOTYPE_METHOD(t, "update", Update);
             NODE_SET_PROTOTYPE_METHOD(t, "close", Close);
             NODE_SET_PROTOTYPE_METHOD(t, "set_hint", SetHint);
+            NODE_SET_PROTOTYPE_METHOD(t, "clear_hints", ClearHints);
+            NODE_SET_PROTOTYPE_METHOD(t, "set_timeout", SetTimeout);
+            NODE_SET_PROTOTYPE_METHOD(t, "set_category", SetCategory);
+            NODE_SET_PROTOTYPE_METHOD(t, "set_urgency", SetUrgency);
 
             target->Set(String::NewSymbol("Notification"), t->GetFunction());
         }
@@ -126,6 +139,64 @@ class Notification : public EventEmitter {
                 );
             }
 
+            return Undefined();
+        }
+
+        static Handle<Value> ClearHints(const Arguments& args) {
+            Notification* n = ObjectWrap::Unwrap<Notification>(args.This());
+            HandleScope scope;
+            notify_notification_clear_hints(n->notification);
+            return Undefined();
+        }
+
+        static Handle<Value> SetTimeout(const Arguments& args) {
+            Notification* n = ObjectWrap::Unwrap<Notification>(args.This());
+            HandleScope scope;
+            if(args.Length() != 1 || !args[0]->IsInt32()) {
+                return ThrowException(
+                    Exception::Error(String::New("set_timeout() takes exactly one integer argument."))
+                );
+            }
+            notify_notification_set_timeout(n->notification, args[0]->Int32Value());
+            return Undefined();
+        }
+
+        static Handle<Value> SetCategory(const Arguments& args) {
+            Notification* n = ObjectWrap::Unwrap<Notification>(args.This());
+            HandleScope scope;
+            if(args.Length() != 1 || !args[0]->IsString()) {
+                return ThrowException(
+                    Exception::Error(String::New("set_category() takes exactly one string argument."))
+                );
+            }
+            String::Utf8Value cat(args[0]->ToString());
+            notify_notification_set_category(n->notification, *cat);
+            return Undefined();
+        }
+
+        static Handle<Value> SetUrgency(const Arguments& args) {
+            Notification* n = ObjectWrap::Unwrap<Notification>(args.This());
+            HandleScope scope;
+            if(args.Length() != 1 || !args[0]->IsString()) {
+                return ThrowException(
+                    Exception::Error(String::New("set_urgency() takes exactly one string argument."))
+                );
+            }
+            String::Utf8Value u(args[0]->ToString());
+            if (strcmp(*u, "low") == 0) {
+                notify_notification_set_urgency(n->notification, NOTIFY_URGENCY_LOW);
+            } else if (strcmp(*u, "normal") == 0) {
+                notify_notification_set_urgency(n->notification, NOTIFY_URGENCY_NORMAL);
+            } else if (strcmp(*u, "critical") == 0) {
+                notify_notification_set_urgency(n->notification, NOTIFY_URGENCY_CRITICAL);
+            } else {
+                return ThrowException(
+                    Exception::Error(String::Concat(
+                        String::New("set_urgency() argument must be \"low\", \"normal\" or \"critical\", was \""),
+                        String::Concat(args[0]->ToString(), String::New("\"."))
+                    ))
+                );
+            }
             return Undefined();
         }
 

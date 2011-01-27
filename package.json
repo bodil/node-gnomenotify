@@ -1,5 +1,5 @@
 { "name" : "gnomenotify"
-, "version" : "0.0.1"
+, "version" : "0.0.2"
 , "description" : "libnotify C++ bindings for Node"
 , "author": "Bodil Stokke <bodil@bodil.tv>"
 , "keywords": [ "libnotify" ]
