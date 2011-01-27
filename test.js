@@ -3,6 +3,8 @@ var assert = require("assert");
 
 libnotify.notify_init("node-libnotify-test");
 assert.equal(libnotify.notify_get_app_name(), "node-libnotify-test");
+console.log(libnotify.notify_get_server_caps());
+console.log(libnotify.notify_get_server_info());
 
 var n = new libnotify.Notification("ohai!", "This is a test notification.",
                                     "dialog-warning");

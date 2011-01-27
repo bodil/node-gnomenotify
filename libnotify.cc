@@ -218,6 +218,38 @@ Handle<Value> NotifyGetAppName(const Arguments& args) {
     return scope.Close(String::New(notify_get_app_name()));
 }
 
+Handle<Value> NotifyGetServerCaps(const Arguments& args) {
+    HandleScope scope;
+    GList* capabilities = notify_get_server_caps();
+    Local<Array> caps(Array::New(g_list_length(capabilities)));
+    uint32_t ct = 0;
+    for(GList* c = capabilities; c != NULL; c = c->next) {
+        caps->Set(ct++, String::New((char*)c->data));
+    }
+    g_list_foreach(capabilities, (GFunc)g_free, NULL);
+    g_list_free(capabilities);
+    return scope.Close(caps);
+}
+
+Handle<Value> NotifyGetServerInfo(const Arguments& args) {
+    HandleScope scope;
+    char *name, *vendor, *version, *spec_version;
+    if (notify_get_server_info(&name, &vendor, &version, &spec_version) == TRUE) {
+        Local<Object> info(Object::New());
+        info->Set(String::New("name"), String::New(name));
+        info->Set(String::New("vendor"), String::New(vendor));
+        info->Set(String::New("version"), String::New(version));
+        info->Set(String::New("spec_version"), String::New(spec_version));
+        g_free(name);
+        g_free(vendor);
+        g_free(version);
+        g_free(spec_version);
+        return scope.Close(info);
+    } else {
+        return Null();
+    }
+}
+
 extern "C" void init(Handle<Object> target) {
     HandleScope scope;
 
@@ -226,6 +258,12 @@ extern "C" void init(Handle<Object> target) {
 
     Local<FunctionTemplate> n_get_app_name = FunctionTemplate::New(NotifyGetAppName);
     target->Set(String::New("notify_get_app_name"), n_get_app_name->GetFunction());
+
+    Local<FunctionTemplate> n_get_server_caps = FunctionTemplate::New(NotifyGetServerCaps);
+    target->Set(String::New("notify_get_server_caps"), n_get_server_caps->GetFunction());
+
+    Local<FunctionTemplate> n_get_server_info = FunctionTemplate::New(NotifyGetServerInfo);
+    target->Set(String::New("notify_get_server_info"), n_get_server_info->GetFunction());
 
     Notification::Initialize(target);
 }
