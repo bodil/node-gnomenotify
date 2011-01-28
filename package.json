@@ -1,6 +1,6 @@
 { "name" : "gnomenotify"
 , "version" : "0.0.3"
-, "description" : "libnotify C++ bindings for Node"
+, "description" : "C++ bindings for GNOME libnotify on-screen notifications"
 , "author": "Bodil Stokke <bodil@bodil.tv>"
 , "keywords": [ "libnotify" ]
 , "repository":
