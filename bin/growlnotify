@@ -1,0 +1,31 @@
+#!/usr/bin/env node
+
+var libnotify = require("../build/default/libnotify");
+
+var args = process.argv.slice(2), title = null, message = null;
+
+while (args.length) {
+    var arg = args.shift();
+    switch (arg) {
+    case "-name":
+        title = args.shift();
+        break;
+    case "-m":
+        message = args.shift();
+        break;
+    default:
+        break;
+    }
+}
+
+if (!title && !message) {
+    console.log("Usage: " + process.argv[0] + " -name <title> -m <message>");
+    process.exit(1);
+}
+
+libnotify.notify_init(title);
+var n = new libnotify.Notification(title, message, "dialog-warning");
+n.set_hint("x-canonical-append", "");
+n.set_urgency("critical");
+n.show();
+

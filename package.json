@@ -1,5 +1,5 @@
 { "name" : "gnomenotify"
-, "version" : "0.0.3"
+, "version" : "0.0.4"
 , "description" : "C++ bindings for GNOME libnotify on-screen notifications"
 , "author": "Bodil Stokke <bodil@bodil.tv>"
 , "keywords": [ "libnotify" ]
@@ -8,6 +8,9 @@
   , "url": "http://github.com/bodil/node-gnomenotify.git"
   }
 , "main": "./build/default/libnotify"
+, "bin":
+  { "growlnotify": "./bin/growlnotify"
+  }
 , "scripts": { "install": "node-waf configure build" }
 }
 
